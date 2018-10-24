@@ -1,0 +1,175 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "path.h"
+
+#ifndef READPATH_OFF
+char * readPath(char * pathFilename)
+{
+	FILE * pathdata = fopen(pathFilename, "r");
+
+	if(pathdata == NULL)
+	{
+		return NULL;
+	}
+	
+	int c = ftell(pathdata);
+	fseek(pathdata, 0, SEEK_END);
+	int size = ftell(pathdata);
+	fseek(pathdata, c, SEEK_SET);
+
+	char* pathorder = malloc(sizeof(char) * size);
+
+	int i = 0;
+	while( i < size )
+	{
+		fscanf(pathdata, "%c", &pathorder[i]);
+		i++;
+	}
+	size = i;
+	for(i = 0; i < size; i++)
+	{
+		printf("%c", pathorder[i]);
+	}
+	printf("\n");
+
+	fclose(pathdata);
+
+	return pathorder;
+	//FILL IN
+
+}
+#endif //#ifndef READPATH_OFF
+
+#ifndef CHECKPATH_OFF
+bool checkPath(Maze * m, char * path)
+{
+	// Get Length of the path array
+	int lenPath = 0;
+
+	while(path[lenPath] != '\0')
+	{
+		lenPath++;
+	}
+	
+	// LOOP
+	int i = 0;
+
+	while( path[i] != '\0' )
+	{
+		if( path[i] == 'e' )
+		{
+			if( (m->start.xpos + 1) > (m->width - 1) )
+			{
+				return EXIT_FAILURE;
+			}
+			
+			if(m->maze[m->start.ypos][m->start.xpos + 1].type == SPACE)
+			{
+				m->start.xpos++;
+			}
+			else if(m->maze[m->start.ypos][m->start.xpos + 1].type == END)
+			{
+				if( i == lenPath - 1 )
+				{
+					return EXIT_SUCCESS;
+				}
+				else
+				{
+					return EXIT_FAILURE;
+				}
+			}
+			else
+			{
+				return EXIT_FAILURE;
+			}
+		}// e
+		if( path[i] == 'w' )
+		{
+			if( (m->start.xpos - 1) < 0 )
+			{
+				return EXIT_FAILURE;
+			}
+
+			if(m->maze[m->start.ypos][m->start.xpos - 1].type == SPACE)
+			{
+				m->start.xpos--;
+			}
+			else if(m->maze[m->start.ypos][m->start.xpos - 1].type == END)
+            {   
+                if( i == lenPath - 1 )
+                {   
+		   printf("\n Return  %c\n", m->maze[m->start.ypos-1][m->start.xpos].type);
+                    return EXIT_SUCCESS;
+                }   
+                else
+                {   
+                    return EXIT_FAILURE;
+                }   
+            }   
+			else			
+			{
+				return EXIT_FAILURE;
+			}
+		}// w
+		if( path[i] == 's' )
+		{
+			if( (m->start.ypos + 1) > (m->height - 1) )
+			{
+				return EXIT_FAILURE;
+			}
+
+			if(m->maze[m->start.ypos + 1][m->start.xpos].type == SPACE)
+			{
+				m->start.ypos++;
+			}
+			else if(m->maze[m->start.ypos + 1][m->start.xpos].type == END)
+            {   
+                if( i == lenPath - 1)
+                {   
+		   printf("\n Return  %c\n", m->maze[m->start.ypos-1][m->start.xpos].type);
+                    return EXIT_SUCCESS;
+                }   
+                else
+                {   
+                    return EXIT_FAILURE;
+                }   
+            }   
+			else
+			{
+				return EXIT_FAILURE;
+			}
+		}// s
+		if( path[i] == 'n')
+		{
+			printf("\n First  %c\n", m->maze[m->start.ypos-1][m->start.xpos].type);
+			if( (m->start.ypos - 1) < 0 )
+			{
+				return EXIT_FAILURE;
+			}
+			if(m->maze[m->start.ypos - 1][m->start.xpos].type == SPACE)
+			{
+			       	printf("\n Space  %c\n", m->maze[m->start.ypos-1][m->start.xpos].type);
+				m->start.ypos--;
+			}
+			else if(m->maze[m->start.ypos - 1][m->start.xpos].type == END)
+            {   
+                if( i == lenPath - 1)
+                {   
+		  printf("\n Return  %c\n", m->maze[m->start.ypos-1][m->start.xpos].type);
+                    return EXIT_SUCCESS;
+                }   
+                else
+                {   
+                    return EXIT_FAILURE;
+                }   
+            }   
+			else
+			{
+				return EXIT_FAILURE;
+			}
+		}// n
+		i++;
+	}
+	return EXIT_SUCCESS;
+}
+#endif //#ifndef CHECKPATH_OFF

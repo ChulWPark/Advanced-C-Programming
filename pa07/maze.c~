@@ -1,0 +1,101 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include "maze.h"
+
+#ifndef READMAZE_OFF
+Maze * readMaze(char * mazeFilename) {
+	
+	//open the maze file
+	FILE * mazedata = fopen(mazeFilename, "r");
+	if(mazedata == NULL)
+	{
+		return false;
+	}
+	
+	//malloc "mazestruct", which is type Maze *
+	Maze * mazestruct = malloc(sizeof(Maze));
+	
+	//copy the height and width of the 2D array
+	fscanf(mazedata, "%d %d", &(*mazestruct).height, &(*mazestruct).width);
+	
+	//malloc "mazestruct->maze", which is 2D array
+	mazestruct->maze = malloc( (*mazestruct).height * sizeof(MazeSquare *) );
+	int i;
+	for( i = 0; i < (*mazestruct).height; i++ )
+	{
+		mazestruct->maze[i] = malloc( (*mazestruct).width * sizeof(MazeSquare) );
+	}
+	
+	//copy the contents of the mazefile and put them in the "mazestruct->maze", which is 2D array that I malloced
+	int j;
+	char* ch = malloc(sizeof(char) * mazestruct->width);
+	for(i = 0; i < (*mazestruct).height; i++)
+	{
+		fscanf(mazedata, "%s", ch);
+		for(j = 0; j < (*mazestruct).width; j++)
+		{
+			if( ch[j] == '#' )
+			{
+				mazestruct->maze[i][j].type = WALL;	
+			}
+			else if( ch[j] == '.' )
+			{
+				mazestruct->maze[i][j].type = SPACE;
+			}
+			else if( ch[j] == 's' )
+			{
+				mazestruct->maze[i][j].type = START;
+				mazestruct->start.xpos = j;
+				mazestruct->start.ypos = i;
+			}
+			else if( ch[j] == 'e' )
+			{
+				mazestruct->maze[i][j].type = END;
+				mazestruct->end.xpos = j;
+				mazestruct->end.ypos = i;
+			}
+			else
+			{
+				return NULL;
+			}
+				
+		}
+	}
+	
+	/*
+	printf("start: %d %d\n", mazestruct->start.xpos, mazestruct->start.ypos);
+	printf("end: %d %d\n", mazestruct->end.xpos, mazestruct->end.ypos);
+
+	for(i = 0; i < 5; i++)
+	{
+		for(j = 0; j < 5; j++)
+		{
+			printf("%c", mazestruct->maze[i][j].type);
+		}
+		printf("\n");
+	}
+	printf("\n");
+	*/
+
+	free(ch);
+	
+	//close the maze file
+	fclose(mazedata);
+	
+	//return the type Maze * mazestruct
+	return mazestruct;
+}
+#endif //#ifndef READMAZE_OFF
+
+#ifndef FREEMAZE_OFF
+void freeMaze(Maze * m) {
+	//1. Free each of the "rows" of the maze
+	for (int i = 0; i < m->height; i++)
+	{
+		free(m->maze[i]);
+	}
+	//2. Free the "spine" of the array
+	free(m->maze);
+	free(m);
+}
+#endif //#ifndef FREEMAZE_OFF
